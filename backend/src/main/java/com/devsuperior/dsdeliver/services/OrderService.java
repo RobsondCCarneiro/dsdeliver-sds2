@@ -26,12 +26,15 @@ public class OrderService {
 	@Autowired
 	private ProductRespository productRepository;
 	
+	//Aqui eh para ler o Banco de Dados (Comando GET no PostMan)
 	@Transactional(readOnly = true)
 	public List<OrderDTO> findAll(){
 		List<Order> list = repository.findOrdersWithProducts();
 		return list.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList());
 	}
 	
+	
+	//Aqui eh para inserir no Banco de Dados (comando POST no PostMan)
 	@Transactional
 	public OrderDTO insert(OrderDTO dto){
 		Order order = new Order(null, dto.getAddress(), dto.getLatitude(), dto.getLongitude(),
@@ -49,6 +52,15 @@ public class OrderService {
 			order.getProducts().add(product);
 		}
 		
+		order = repository.save(order);
+		return new OrderDTO(order);
+	}
+	
+	//Aqui eh para alterar o banco de dados
+	@Transactional
+	public OrderDTO setDelivered(Long id){
+		Order order = repository.getOne(id);
+		order.setStatus(OrderStatus.DELIVERED);
 		order = repository.save(order);
 		return new OrderDTO(order);
 	}
